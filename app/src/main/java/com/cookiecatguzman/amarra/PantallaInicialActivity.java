@@ -11,8 +11,10 @@ import android.widget.TextView;
 import com.cookiecatguzman.amarra.fragments.InicioFragment;
 import com.cookiecatguzman.amarra.fragments.MapaFragment;
 import com.cookiecatguzman.amarra.fragments.PerfilFragment;
+import com.cookiecatguzman.amarra.fragments.UnidadesFragment;
+import com.cookiecatguzman.amarra.fragments.dummy.UnidadesContent;
 
-public class PantallaInicialActivity extends AppCompatActivity {
+public class PantallaInicialActivity extends AppCompatActivity implements UnidadesFragment.OnListFragmentInteractionListener {
 
     private TextView mTextMessage;
 
@@ -32,10 +34,10 @@ public class PantallaInicialActivity extends AppCompatActivity {
                     manager.beginTransaction().replace(R.id.content, new MapaFragment()).commit();
                     return true;
                 case R.id.navigation_unidades:
-                    manager.beginTransaction().replace(R.id.content, new PerfilFragment()).commit();
+                    manager.beginTransaction().replace(R.id.content, new UnidadesFragment()).commit();
                     return true;
                 case R.id.navigation_perfil:
-                    manager.beginTransaction().replace(R.id.content, new UnidadesFragment()).commit();
+                    manager.beginTransaction().replace(R.id.content, new PerfilFragment()).commit();
                     return true;
             }
             return false;
@@ -53,4 +55,8 @@ public class PantallaInicialActivity extends AppCompatActivity {
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
     }
 
+    @Override
+    public void onListFragmentInteraction(UnidadesContent.DummyItem item) {
+
+    }
 }

@@ -11,10 +11,9 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.cookiecatguzman.amarra.R;
-import com.cookiecatguzman.amarra.fragments.dummy.DummyContent;
-import com.cookiecatguzman.amarra.fragments.dummy.DummyContent.DummyItem;
-
-import java.util.List;
+import com.cookiecatguzman.amarra.adapters.UnidadesRecyclerViewAdapter;
+import com.cookiecatguzman.amarra.fragments.dummy.UnidadesContent;
+import com.cookiecatguzman.amarra.fragments.dummy.UnidadesContent.DummyItem;
 
 /**
  * A fragment representing a list of Items.
@@ -22,7 +21,7 @@ import java.util.List;
  * Activities containing this fragment MUST implement the {@link OnListFragmentInteractionListener}
  * interface.
  */
-public class UnidadesFramgent extends Fragment {
+public class UnidadesFragment extends Fragment {
 
     // TODO: Customize parameters
     private int mColumnCount = 1;
@@ -33,7 +32,7 @@ public class UnidadesFramgent extends Fragment {
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
      */
-    public UnidadesFramgent() {
+    public UnidadesFragment() {
     }
 
     @Override
@@ -56,7 +55,7 @@ public class UnidadesFramgent extends Fragment {
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            recyclerView.setAdapter(new UnidadesRecyclerViewAdapter(DummyContent.ITEMS, mListener));
+            recyclerView.setAdapter(new UnidadesRecyclerViewAdapter(UnidadesContent.ITEMS, mListener));
         }
         return view;
     }
