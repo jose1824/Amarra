@@ -53,6 +53,9 @@ public class PantallaInicialActivity extends AppCompatActivity implements Unidad
         mTextMessage = (TextView) findViewById(R.id.message);
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+
+        FragmentManager manager = getSupportFragmentManager();
+        manager.beginTransaction().replace(R.id.content, new InicioFragment()).commit();
     }
 
     @Override

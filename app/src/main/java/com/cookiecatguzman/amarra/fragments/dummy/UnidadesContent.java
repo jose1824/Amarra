@@ -38,7 +38,7 @@ public class UnidadesContent {
     }
 
     private static DummyItem createDummyItem(int position) {
-        return new DummyItem(String.valueOf(position), "Item " + position, makeDetails(position));
+        return new DummyItem(String.valueOf(position), "Autobus " + position, makeDetails(position));
     }
 
     private static String makeDetails(int position) {
