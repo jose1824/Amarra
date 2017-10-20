@@ -24,4 +24,9 @@
 
     <string name="menu_cerrar_sesion">Cerrar Sesión</string>
     <string name="menu_cofiguraciones">Configuraciones</string>
+    <string name="title_activity_mapa">MapaActivity</string>
+    <string name="title_activity_incidencia">IncidenciaActivity</string>
+    <string name="title_activity_resultado">ResultadoActivity</string>
+    <string name="empezar_viaje">Empezar viaje</string>
+    <string name="detener_viaje">Detener viaje</string>
 </resources>
