@@ -24,6 +24,7 @@ import android.widget.LinearLayout;
 import com.cookiecatguzman.amarra.MapsActivity;
 import com.cookiecatguzman.amarra.R;
 import com.cookiecatguzman.amarra.SplashScreenActivity;
+import com.cookiecatguzman.amarra.utilidades.Route;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -48,6 +49,7 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
     public static final long NOTIFY_INTERVAL = 10 * 1000;
     private Handler mHandler = new Handler();
     private Timer mTimer = null;
+    public boolean conMarcador;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +71,8 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
                 startActivity(new Intent(MapaActivity.this, IncidenciaActivity.class));
             }
         });
+
+        conMarcador = false;
 
         linearDetenerViaje = (LinearLayout) findViewById(R.id.detener_viaje);
     }
@@ -206,7 +210,7 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
         @Override
         protected ArrayList<String> doInBackground(Void... params) {
             ArrayList<String> data = new ArrayList<>();
-            /*        LocationManager lm = (LocationManager) MapaActivity.this.getSystemService(Context.LOCATION_SERVICE);
+                    LocationManager lm = (LocationManager) MapaActivity.this.getSystemService(Context.LOCATION_SERVICE);
                     if (ActivityCompat.checkSelfPermission(MapaActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                             ActivityCompat.checkSelfPermission(MapaActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     }
@@ -216,25 +220,42 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
                     ArrayList<Double> coordenadas = new ArrayList<Double>();
                     coordenadas.add(longitude);
                     coordenadas.add(latitude);
-            doInBackground();*/
+            publishProgress(coordenadas);
             return data;
         }
 
         @Override
-        protected void onProgressUpdate(ArrayList<Double>... values) {
+        protected void onProgressUpdate(final ArrayList<Double>... values) {
             super.onProgressUpdate(values);
-            LatLng ubicacion = new LatLng(values[0].get(1), values[0].get(0));
-            Marker markerActual = mMap.addMarker(new MarkerOptions().position(ubicacion).title("Ubicación actual"));
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(ubicacion, 15));
+            LatLng ubicacionActual = new LatLng(values[0].get(1), values[0].get(0));
+            Marker markerActual = mMap.addMarker(new MarkerOptions().position(new LatLng(latitudInicio, longitudInicio)).title("Ubicación actual"));
 
-            mMap.addPolyline(new PolylineOptions()
-              .add(
-                      new LatLng(latitudInicio, longitudInicio),
-                      new LatLng(values[0].get(0), values[0].get(1))
-              )
-                     .width(5)
-                    .color(Color.CYAN)
+            if (conMarcador){
+                Marker origen = mMap.addMarker(new MarkerOptions().position(new LatLng(latitudInicio, longitudInicio)).title("Marker Here"));
+            }
+
+            Marker destino = mMap.addMarker(new MarkerOptions().position(ubicacionActual).title("Marker Here"));
+            //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(ubicacionActual, 15));
+            Route route = new Route();
+            route.drawRoute(
+                    mMap,
+                    MapaActivity.this,
+                    new LatLng(latitudInicio, longitudInicio),
+                    ubicacionActual,
+                    Route.TRANSPORT_DRIVING,
+                    true,
+                    Route.LANGUAGE_SPANISH
             );
+            conMarcador = true;
+
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    System.out.println(values[0]);
+                    doInBackground();
+                }
+            }, 1500);
+
         }
 
         @Override
