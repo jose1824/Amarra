@@ -15,7 +15,7 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
+            android:background="#393C3E"
             app:popupTheme="@style/AppTheme.PopupOverlay" />
 
         <LinearLayout
@@ -41,6 +41,8 @@
 
     </android.support.design.widget.AppBarLayout>
 
+
+
     <include layout="@layout/content_mapa" />
 
     <android.support.design.widget.FloatingActionButton
@@ -48,8 +50,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-        android:background="@color/coloRed"
-        android:backgroundTint="@color/coloRed"
+        android:visibility="invisible"
+        app:backgroundTint="@color/coloRed"
         android:layout_margin="@dimen/fab_margin"
         app:srcCompat="@mipmap/ic_warning_white_24dp" />
 
