@@ -5,6 +5,7 @@ import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
+import com.cookiecatguzman.amarra.validas.DestinoActivity;
 import com.cookiecatguzman.amarra.validas.MapaActivity;
 
 public class SplashScreenActivity extends AppCompatActivity {
@@ -17,7 +18,7 @@ public class SplashScreenActivity extends AppCompatActivity {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                startActivity(new Intent(SplashScreenActivity.this, MapaActivity.class));
+                startActivity(new Intent(SplashScreenActivity.this, DestinoActivity.class));
                 finish();
             }
         }, 2500);

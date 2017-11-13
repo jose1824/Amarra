@@ -84,19 +84,5 @@
 
     </android.support.v4.widget.NestedScrollView>
 
-    <de.hdodenhof.circleimageview.CircleImageView
-        android:id="@+id/materialup.profile_image"
-        android:layout_width="96dp"
-        android:layout_height="96dp"
-        android:layout_gravity="center_horizontal"
-        android:src="@drawable/icono_sesion"
-        app:layout_anchor="@id/materialup.title_container"
-        android:elevation="8dp"
-        app:border_width="2dp"
-        app:border_color="#FFF"
-        app:layout_scrollFlags="scroll"
-        app:layout_anchorGravity="top|center_horizontal"
-        />
-
 
 </android.support.design.widget.CoordinatorLayout>

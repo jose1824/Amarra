@@ -19,6 +19,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -35,14 +36,30 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.LocationSource;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.places.GeoDataClient;
+import com.google.android.gms.location.places.PlaceDetectionClient;
+import com.google.android.gms.location.places.PlaceLikelihood;
+import com.google.android.gms.location.places.PlaceLikelihoodBufferResponse;
+import com.google.android.gms.location.places.Places;
 
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import static com.cookiecatguzman.amarra.validas.DestinoActivity.TAG_DESTINO_DIRECCION;
+import static com.cookiecatguzman.amarra.validas.DestinoActivity.TAG_DESTINO_LATITUD;
+import static com.cookiecatguzman.amarra.validas.DestinoActivity.TAG_DESTINO_LONGITUD;
+import static com.cookiecatguzman.amarra.validas.DestinoActivity.TAG_ORIGEN_DIRECCION;
+import static com.cookiecatguzman.amarra.validas.DestinoActivity.TAG_ORIGEN_LATITUD;
+import static com.cookiecatguzman.amarra.validas.DestinoActivity.TAG_ORIGEN_LONGITUD;
+import static com.cookiecatguzman.amarra.validas.DestinoActivity.TAG_TIEMPO_TRANSCURRIDO;
 
 public class MapaActivity extends AppCompatActivity implements OnMapReadyCallback,
         LocationListener {
@@ -51,40 +68,37 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
     private double latitudInicio;
     private double longitudInicio;
     private static final int RESULT_MAP = 1;
-    private LinearLayout linearDetenerViaje;
     private FloatingActionButton fab;
     private boolean viajeIniciado = false;
+    private boolean mLocationPermissionGranted;
+    private long tiempoInicial;
 
     public boolean conMarcador;
+
+    public double origenLat;
+    public double origenLng;
+    public double destinoLat;
+    public double destinoLng;
+
+    // The entry points to the Places API.
+    private GeoDataClient mGeoDataClient;
+    private PlaceDetectionClient mPlaceDetectionClient;
+
+    // The entry point to the Fused Location Provider.
+    private FusedLocationProviderClient mFusedLocationProviderClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mapa);
 
-        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        tiempoInicial = System.currentTimeMillis();
 
-        Criteria locationCritera = new Criteria();
-        locationCritera.setAccuracy(Criteria.ACCURACY_FINE);
-        locationCritera.setAltitudeRequired(false);
-        locationCritera.setBearingRequired(false);
-        locationCritera.setCostAllowed(true);
-        locationCritera.setPowerRequirement(Criteria.NO_REQUIREMENT);
+        origenLat = getIntent().getExtras().getDouble(TAG_ORIGEN_LATITUD);
+        origenLng = getIntent().getExtras().getDouble(TAG_ORIGEN_LONGITUD);
+        destinoLat = getIntent().getExtras().getDouble(TAG_DESTINO_LATITUD);
+        destinoLng= getIntent().getExtras().getDouble(TAG_DESTINO_LONGITUD);
 
-        String providerName = locationManager.getBestProvider(locationCritera, true);
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
-        }
-        Location location = locationManager.getLastKnownLocation(providerName);
-        System.out.println(location);
-        System.out.println(providerName);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -94,17 +108,20 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
+        // Construct a GeoDataClient.
+        mGeoDataClient = Places.getGeoDataClient(this, null);
+
+        // Construct a PlaceDetectionClient.
+        mPlaceDetectionClient = Places.getPlaceDetectionClient(this, null);
+
+        // Construct a FusedLocationProviderClient.
+        mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+
         conMarcador = false;
 
-        linearDetenerViaje = (LinearLayout) findViewById(R.id.detener_viaje);
         fab = (FloatingActionButton) findViewById(R.id.fab);
 
-        linearDetenerViaje.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(MapaActivity.this, ResultadoActivity.class));
-            }
-        });
+
     }
 
     @Override
@@ -116,7 +133,7 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_mapa, menu);
+        getMenuInflater().inflate(R.menu.menu_viaje_iniciado, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -124,16 +141,18 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         switch (id) {
-            case R.id.empezar: {
-                linearDetenerViaje.setVisibility(View.VISIBLE);
-                fab.setVisibility(View.VISIBLE);
-                fab.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        startActivity(new Intent(MapaActivity.this, IncidenciaActivity.class));
-                    }
-                });
-                viajeIniciado = true;
+            case R.id.terminar: {
+                long tiempoFinal = System.currentTimeMillis();
+                Intent intent = new Intent(MapaActivity.this, ResultadoActivity.class);
+                intent.putExtra(TAG_ORIGEN_LATITUD, getIntent().getExtras().getDouble(TAG_ORIGEN_LATITUD));
+                intent.putExtra(TAG_ORIGEN_LONGITUD, getIntent().getExtras().getDouble(TAG_ORIGEN_LATITUD));
+                intent.putExtra(TAG_DESTINO_LATITUD, getIntent().getExtras().getDouble(TAG_ORIGEN_LATITUD));
+                intent.putExtra(TAG_DESTINO_LONGITUD, getIntent().getExtras().getDouble(TAG_ORIGEN_LATITUD));
+                intent.putExtra(TAG_ORIGEN_DIRECCION, getIntent().getExtras().getDouble(TAG_ORIGEN_LATITUD));
+                intent.putExtra(TAG_DESTINO_DIRECCION, getIntent().getExtras().getDouble(TAG_ORIGEN_LATITUD));
+                intent.putExtra(TAG_TIEMPO_TRANSCURRIDO, tiempoFinal - tiempoInicial );
+                startActivity(intent);
+                finish();
             }
         }
         return super.onOptionsItemSelected(item);
@@ -170,19 +189,45 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         pedirPermiso();
 
-        LocationManager lm = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             pedirPermiso();
         }
-        Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-        longitudInicio = location.getLongitude();
-        latitudInicio = location.getLatitude();
 
-        // Add a marker in Sydney and move the camera
-        LatLng ubicacion = new LatLng(latitudInicio, longitudInicio);
-        mMap.addMarker(new MarkerOptions().position(ubicacion).title("Ubicación actual"));
+        LocationManager lm = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+        Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        double longitude = location.getLongitude();
+        double latitude = location.getLatitude();
+        final LatLng ubicacion = new LatLng(latitude, longitude);
+        mMap.addMarker(new MarkerOptions()
+                .position(ubicacion)
+                .title("Ubicación actual")
+        ).showInfoWindow();
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(ubicacion, 15));
+
+
+        mMap.addMarker(new MarkerOptions()
+                .position(new LatLng(origenLat, origenLng))
+                .title("Origen")
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN))
+        ).showInfoWindow();
+
+        mMap.addMarker(new MarkerOptions()
+                .position(new LatLng(destinoLat, destinoLat))
+                .title("Destino")
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
+        ).showInfoWindow();
+
+        Route route = new Route();
+        route.drawRoute(
+                mMap,
+                MapaActivity.this,
+                new LatLng(origenLat, origenLng),
+                new LatLng(destinoLat, destinoLng),
+                Route.TRANSPORT_DRIVING,
+                true,
+                Route.LANGUAGE_SPANISH
+        );
 
     }
 
@@ -197,12 +242,14 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
 
+
+
     @Override
     public void onLocationChanged(Location location) {
         /*if (!viajeIniciado) {
             return;
         }*/
-        System.out.println("ENTRO");
+        /*System.out.println("ENTRO");
 
         mMap.clear();
 
@@ -216,7 +263,7 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(
                 new LatLng(location.getLatitude(), location.getLongitude()), 16));
-
+*/
 /*
         if (mListener != null) {
             mListener.onLocationChanged(location);

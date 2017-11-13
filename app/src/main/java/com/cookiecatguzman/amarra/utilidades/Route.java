@@ -15,6 +15,7 @@ import android.graphics.Color;
 import android.os.AsyncTask;
 import android.text.Html;
 
+import com.cookiecatguzman.amarra.R;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
@@ -301,7 +302,7 @@ public class Route {
                 Polyline line = mMap.addPolyline(new PolylineOptions()
                         .add(new LatLng(src.latitude, src.longitude), new LatLng(dest.latitude,   dest.longitude))
                         .width(15)
-                        .color(Color.CYAN).geodesic(true));
+                        .color(context.getResources().getColor(R.color.colorPrimary)));
             }
 
 

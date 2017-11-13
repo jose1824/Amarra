@@ -29,4 +29,5 @@
     <string name="title_activity_resultado">ResultadoActivity</string>
     <string name="empezar_viaje">Empezar viaje</string>
     <string name="detener_viaje">Detener viaje</string>
+    <string name="title_activity_destino">DestinoActivity</string>
 </resources>
