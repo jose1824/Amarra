@@ -59,6 +59,8 @@ public class DestinoActivity extends AppCompatActivity implements AdapterView.On
     public static final String TAG_ORIGEN_DIRECCION = "TAG_ORIGEN_DIRECCION";
     public static final String TAG_DESTINO_DIRECCION = "TAG_DESTINO_DIRECCION";
     public static final String TAG_TIEMPO_TRANSCURRIDO = "TAG_TIEMPO_TRANSCURRIDO";
+    public static final String TAG_TIEMPO_INICIAL = "TAG_TIEMPO_INICIAL";
+    public static final String TAG_TIEMPO_FINAL = "TAG_TIEMPO_FINAL";
 
     private ArrayList placeIDs;
 
@@ -167,6 +169,7 @@ public class DestinoActivity extends AppCompatActivity implements AdapterView.On
                 intent.putExtra(TAG_DESTINO_LATITUD, destinoLat);
                 intent.putExtra(TAG_DESTINO_LONGITUD, destinoLng);
                 intent.putExtra(TAG_ORIGEN_DIRECCION, autoCompView.getText().toString());
+                System.out.println(autoCompView.getText().toString());
                 intent.putExtra(TAG_DESTINO_DIRECCION, autoCompViewDestino.getText().toString());
                 startActivity(intent);
                 finish();

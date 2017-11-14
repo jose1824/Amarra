@@ -59,6 +59,8 @@ import static com.cookiecatguzman.amarra.validas.DestinoActivity.TAG_DESTINO_LON
 import static com.cookiecatguzman.amarra.validas.DestinoActivity.TAG_ORIGEN_DIRECCION;
 import static com.cookiecatguzman.amarra.validas.DestinoActivity.TAG_ORIGEN_LATITUD;
 import static com.cookiecatguzman.amarra.validas.DestinoActivity.TAG_ORIGEN_LONGITUD;
+import static com.cookiecatguzman.amarra.validas.DestinoActivity.TAG_TIEMPO_FINAL;
+import static com.cookiecatguzman.amarra.validas.DestinoActivity.TAG_TIEMPO_INICIAL;
 import static com.cookiecatguzman.amarra.validas.DestinoActivity.TAG_TIEMPO_TRANSCURRIDO;
 
 public class MapaActivity extends AppCompatActivity implements OnMapReadyCallback,
@@ -97,7 +99,7 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
         origenLat = getIntent().getExtras().getDouble(TAG_ORIGEN_LATITUD);
         origenLng = getIntent().getExtras().getDouble(TAG_ORIGEN_LONGITUD);
         destinoLat = getIntent().getExtras().getDouble(TAG_DESTINO_LATITUD);
-        destinoLng= getIntent().getExtras().getDouble(TAG_DESTINO_LONGITUD);
+        destinoLng = getIntent().getExtras().getDouble(TAG_DESTINO_LONGITUD);
 
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -148,8 +150,10 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
                 intent.putExtra(TAG_ORIGEN_LONGITUD, getIntent().getExtras().getDouble(TAG_ORIGEN_LATITUD));
                 intent.putExtra(TAG_DESTINO_LATITUD, getIntent().getExtras().getDouble(TAG_ORIGEN_LATITUD));
                 intent.putExtra(TAG_DESTINO_LONGITUD, getIntent().getExtras().getDouble(TAG_ORIGEN_LATITUD));
-                intent.putExtra(TAG_ORIGEN_DIRECCION, getIntent().getExtras().getDouble(TAG_ORIGEN_LATITUD));
-                intent.putExtra(TAG_DESTINO_DIRECCION, getIntent().getExtras().getDouble(TAG_ORIGEN_LATITUD));
+                intent.putExtra(TAG_ORIGEN_DIRECCION, getIntent().getExtras().getString(TAG_ORIGEN_DIRECCION));
+                intent.putExtra(TAG_DESTINO_DIRECCION, getIntent().getExtras().getString(TAG_DESTINO_DIRECCION));
+                intent.putExtra(TAG_TIEMPO_INICIAL, tiempoInicial );
+                intent.putExtra(TAG_TIEMPO_FINAL, tiempoFinal);
                 intent.putExtra(TAG_TIEMPO_TRANSCURRIDO, tiempoFinal - tiempoInicial );
                 startActivity(intent);
                 finish();
