@@ -22,13 +22,16 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
 import com.cookiecatguzman.amarra.MapsActivity;
 import com.cookiecatguzman.amarra.R;
 import com.cookiecatguzman.amarra.SplashScreenActivity;
 import com.cookiecatguzman.amarra.utilidades.Route;
+import com.getbase.floatingactionbutton.FloatingActionsMenu;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -65,6 +68,28 @@ import static com.cookiecatguzman.amarra.validas.DestinoActivity.TAG_TIEMPO_TRAN
 
 public class MapaActivity extends AppCompatActivity implements OnMapReadyCallback,
         LocationListener {
+
+    /**
+     * Constantes
+     */
+    public final static String TIPO_INUNDACION = "inundacion";
+    public final static String TIPO_FALLA = "falla";
+    public final static String TIPO_INSEGURIDAD = "inseguridad";
+    public final static String TIPO_AGLOMERACION = "aglomeracion";
+    public final static String TIPO_RETRASO = "retraso";
+    public final static String TIPO_MARCHA = "marcha";
+    public final static String TIPO_OTRO = "otro";
+
+    /**
+     * Elementos graficos
+     */
+    private FloatingActionButton fabInundacion;
+    private FloatingActionButton fabFalla;
+    private FloatingActionButton fabInseguridad;
+    private FloatingActionButton fabAglomeracion;
+    private FloatingActionButton fabRetraso;
+    private FloatingActionButton fabMarcha;
+    private FloatingActionButton fabOtro;
 
     private GoogleMap mMap;
     private double latitudInicio;
@@ -121,7 +146,32 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         conMarcador = false;
 
+        inicializarComponentes();
+
         fab = (FloatingActionButton) findViewById(R.id.fab);
+
+        final FrameLayout frameLayout = (FrameLayout) findViewById(R.id.frame_layout);
+        frameLayout.getBackground().setAlpha(0);
+        final FloatingActionsMenu fabMenu = (FloatingActionsMenu) findViewById(R.id.fab_menu);
+        fabMenu.setOnFloatingActionsMenuUpdateListener(new FloatingActionsMenu.OnFloatingActionsMenuUpdateListener() {
+            @Override
+            public void onMenuExpanded() {
+                frameLayout.getBackground().setAlpha(240);
+                frameLayout.setOnTouchListener(new View.OnTouchListener() {
+                    @Override
+                    public boolean onTouch(View v, MotionEvent event) {
+                        fabMenu.collapse();
+                        return true;
+                    }
+                });
+            }
+
+            @Override
+            public void onMenuCollapsed() {
+                frameLayout.getBackground().setAlpha(0);
+                frameLayout.setOnTouchListener(null);
+            }
+        });
 
 
     }
@@ -245,8 +295,15 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
-
-
+    private void inicializarComponentes() {
+        fabInundacion = (FloatingActionButton) findViewById(R.id.fab_inundacion);
+        fabFalla = (FloatingActionButton) findViewById(R.id.fab_falla);
+        fabInseguridad = (FloatingActionButton) findViewById(R.id.fab_inseguridad);
+        fabAglomeracion = (FloatingActionButton) findViewById(R.id.fab_aglomeracion);
+        fabRetraso = (FloatingActionButton) findViewById(R.id.fab_retraso);
+        fabMarcha = (FloatingActionButton) findViewById(R.id.fab_marcha);
+        fabOtro = (FloatingActionButton) findViewById(R.id.fab_otra_anomalia);
+    }
 
     @Override
     public void onLocationChanged(Location location) {
