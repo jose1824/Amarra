@@ -3,7 +3,6 @@ package com.cookiecatguzman.amarra.fragments;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -11,9 +10,9 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.cookiecatguzman.amarra.R;
-import com.cookiecatguzman.amarra.adapters.UnidadesRecyclerViewAdapter;
-import com.cookiecatguzman.amarra.fragments.dummy.UnidadesContent;
-import com.cookiecatguzman.amarra.fragments.dummy.UnidadesContent.DummyItem;
+import com.cookiecatguzman.amarra.adapters.IncidenciasRecyclerViewAdapter;
+import com.cookiecatguzman.amarra.fragments.dummy.Incidencias;
+import com.cookiecatguzman.amarra.fragments.dummy.Incidencias.DummyItem;
 
 /**
  * A fragment representing a list of Items.
@@ -49,7 +48,6 @@ public class UnidadesFragment extends Fragment {
         Context context = view.getContext();
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.list);
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
-        recyclerView.setAdapter(new UnidadesRecyclerViewAdapter(UnidadesContent.ITEMS, mListener));
 
         return view;
     }

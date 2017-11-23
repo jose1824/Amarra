@@ -21,6 +21,7 @@ import android.widget.Filterable;
 import android.widget.Toast;
 
 import com.cookiecatguzman.amarra.R;
+import com.cookiecatguzman.amarra.sqlite.IncidenciasSqlite;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
@@ -133,6 +134,15 @@ public class DestinoActivity extends AppCompatActivity implements AdapterView.On
                 destinoLng = destino.get(1);
             }
         });
+
+        try{
+            IncidenciasSqlite sqLite = new IncidenciasSqlite(this);
+            sqLite.resetBD();
+        } catch (Exception e) {
+
+        }
+
+
     }
 
     @Override

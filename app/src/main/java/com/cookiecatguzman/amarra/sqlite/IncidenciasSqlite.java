@@ -30,8 +30,6 @@ public class IncidenciasSqlite extends SQLiteOpenHelper {
     private static final String INCIDENCIA_LONGITUD = "longitud";
     private static final String INCIDENCIA_HORA = "hora";
     private static final String INCIDENCIA_FECHA = "fecha";
-    private static final String INCIDENCIA_ID_USUARIO = "id_usuario";
-    private static final String INCIDENCIA_NOMBRE_USUARIO = "nombre_usuario";
 
     public IncidenciasSqlite(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -46,9 +44,7 @@ public class IncidenciasSqlite extends SQLiteOpenHelper {
                         INCIDENCIA_LATITUD + " TEXT, " +
                         INCIDENCIA_LONGITUD + " TEXT, " +
                         INCIDENCIA_HORA + " TEXT, " +
-                        INCIDENCIA_FECHA + " TEXT, " +
-                        INCIDENCIA_ID_USUARIO + " INTEGER, " +
-                        INCIDENCIA_NOMBRE_USUARIO + " TEXT)"
+                        INCIDENCIA_FECHA + " TEXT)"
         );
     }
 
@@ -61,8 +57,6 @@ public class IncidenciasSqlite extends SQLiteOpenHelper {
         columnas.add(INCIDENCIA_LONGITUD);
         columnas.add(INCIDENCIA_HORA);
         columnas.add(INCIDENCIA_FECHA);
-        columnas.add(INCIDENCIA_ID_USUARIO);
-        columnas.add(INCIDENCIA_NOMBRE_USUARIO);
 
         return columnas;
     }

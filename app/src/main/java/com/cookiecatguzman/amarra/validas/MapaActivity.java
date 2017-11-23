@@ -4,18 +4,11 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
-import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -25,36 +18,29 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
+import android.widget.Toast;
 
-import com.cookiecatguzman.amarra.MapsActivity;
 import com.cookiecatguzman.amarra.R;
-import com.cookiecatguzman.amarra.SplashScreenActivity;
+import com.cookiecatguzman.amarra.sqlite.IncidenciasSqlite;
 import com.cookiecatguzman.amarra.utilidades.Route;
+import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.LocationSource;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.GeoDataClient;
 import com.google.android.gms.location.places.PlaceDetectionClient;
-import com.google.android.gms.location.places.PlaceLikelihood;
-import com.google.android.gms.location.places.PlaceLikelihoodBufferResponse;
 import com.google.android.gms.location.places.Places;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.Date;
 
 import static com.cookiecatguzman.amarra.validas.DestinoActivity.TAG_DESTINO_DIRECCION;
 import static com.cookiecatguzman.amarra.validas.DestinoActivity.TAG_DESTINO_LATITUD;
@@ -67,7 +53,7 @@ import static com.cookiecatguzman.amarra.validas.DestinoActivity.TAG_TIEMPO_INIC
 import static com.cookiecatguzman.amarra.validas.DestinoActivity.TAG_TIEMPO_TRANSCURRIDO;
 
 public class MapaActivity extends AppCompatActivity implements OnMapReadyCallback,
-        LocationListener {
+        LocationListener, View.OnClickListener {
 
     /**
      * Constantes
@@ -79,7 +65,12 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
     public final static String TIPO_RETRASO = "retraso";
     public final static String TIPO_MARCHA = "marcha";
     public final static String TIPO_OTRO = "otro";
-
+    private static final int RESULT_MAP = 1;
+    public boolean conMarcador;
+    public double origenLat;
+    public double origenLng;
+    public double destinoLat;
+    public double destinoLng;
     /**
      * Elementos graficos
      */
@@ -90,23 +81,13 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
     private FloatingActionButton fabRetraso;
     private FloatingActionButton fabMarcha;
     private FloatingActionButton fabOtro;
-
     private GoogleMap mMap;
     private double latitudInicio;
     private double longitudInicio;
-    private static final int RESULT_MAP = 1;
     private FloatingActionButton fab;
     private boolean viajeIniciado = false;
     private boolean mLocationPermissionGranted;
     private long tiempoInicial;
-
-    public boolean conMarcador;
-
-    public double origenLat;
-    public double origenLng;
-    public double destinoLat;
-    public double destinoLng;
-
     // The entry points to the Places API.
     private GeoDataClient mGeoDataClient;
     private PlaceDetectionClient mPlaceDetectionClient;
@@ -202,9 +183,9 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
                 intent.putExtra(TAG_DESTINO_LONGITUD, getIntent().getExtras().getDouble(TAG_ORIGEN_LATITUD));
                 intent.putExtra(TAG_ORIGEN_DIRECCION, getIntent().getExtras().getString(TAG_ORIGEN_DIRECCION));
                 intent.putExtra(TAG_DESTINO_DIRECCION, getIntent().getExtras().getString(TAG_DESTINO_DIRECCION));
-                intent.putExtra(TAG_TIEMPO_INICIAL, tiempoInicial );
+                intent.putExtra(TAG_TIEMPO_INICIAL, tiempoInicial);
                 intent.putExtra(TAG_TIEMPO_FINAL, tiempoFinal);
-                intent.putExtra(TAG_TIEMPO_TRANSCURRIDO, tiempoFinal - tiempoInicial );
+                intent.putExtra(TAG_TIEMPO_TRANSCURRIDO, tiempoFinal - tiempoInicial);
                 startActivity(intent);
                 finish();
             }
@@ -285,6 +266,93 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     }
 
+    @Override
+    public void onClick(View v) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        double longitude = location.getLongitude();
+        double latitude = location.getLatitude();
+        String tipoIncidencia = "";
+
+        MarkerOptions marker = new MarkerOptions()
+                .position(new LatLng(latitude, longitude));
+
+        switch (v.getId()) {
+            case R.id.fab_inundacion: {
+                tipoIncidencia = TIPO_INUNDACION;
+                marker.title(TIPO_INUNDACION);
+                marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.circulo_inundacion));
+                break;
+            }
+            case R.id.fab_falla: {
+                tipoIncidencia = TIPO_FALLA;
+                marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.circulo_falla));
+                break;
+            }
+            case R.id.fab_inseguridad: {
+                tipoIncidencia = TIPO_INSEGURIDAD;
+                marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.circulo_inseguridad));
+                break;
+            }
+            case R.id.fab_aglomeracion: {
+                tipoIncidencia = TIPO_AGLOMERACION;
+                marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.circulo_aglomeracion));
+                break;
+            }
+            case R.id.fab_retraso: {
+                tipoIncidencia = TIPO_RETRASO;
+                marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.circulo_retrazo));
+                break;
+            }
+            case R.id.fab_marcha: {
+                tipoIncidencia = TIPO_MARCHA;
+                marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.circulo_marcha));
+                break;
+            }
+            case R.id.fab_otra_anomalia: {
+                tipoIncidencia = TIPO_OTRO;
+                marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.circulo_otros));
+                break;
+            }
+        }
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        String fecha = sdf.format(new Date());
+        sdf = new SimpleDateFormat("HH:mm:ss");
+        String hora = sdf.format(new Date());
+
+        IncidenciasSqlite sqLite = new IncidenciasSqlite(this);
+
+        ArrayList<String> datosSqlite = new ArrayList<>();
+        datosSqlite.add(sqLite.numberOfRows() + 1 + "");
+        datosSqlite.add(tipoIncidencia);
+        datosSqlite.add(latitude + "");
+        datosSqlite.add(longitude + "");
+        datosSqlite.add(hora);
+        datosSqlite.add(fecha);
+
+
+        if (sqLite.insertSolicitud(datosSqlite) == -1) {
+            Log.e("Error", "ERROR");
+            sqLite.close();
+            return;
+        }
+        sqLite.close();
+
+        Toast.makeText(this, "Incidencia enviada.", Toast.LENGTH_SHORT).show();
+
+        mMap.addMarker(marker);
+    }
+
     private void pedirPermiso() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -303,6 +371,14 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
         fabRetraso = (FloatingActionButton) findViewById(R.id.fab_retraso);
         fabMarcha = (FloatingActionButton) findViewById(R.id.fab_marcha);
         fabOtro = (FloatingActionButton) findViewById(R.id.fab_otra_anomalia);
+
+        fabInundacion.setOnClickListener(this);
+        fabFalla.setOnClickListener(this);
+        fabInseguridad.setOnClickListener(this);
+        fabAglomeracion.setOnClickListener(this);
+        fabRetraso.setOnClickListener(this);
+        fabMarcha.setOnClickListener(this);
+        fabOtro.setOnClickListener(this);
     }
 
     @Override

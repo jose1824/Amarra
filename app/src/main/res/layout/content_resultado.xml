@@ -167,13 +167,23 @@
         android:textStyle="bold"
         android:text="Incidencias en el viaje"/>
 
-    <LinearLayout
-        android:layout_marginTop="8dp"
-        android:orientation="horizontal"
-        android:layout_marginRight="8dp"
-        android:layout_marginLeft="8dp"
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/list"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="300dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginLeft="16dp"
+        app:layoutManager="LinearLayoutManager"
+        app:layout_constraintHeight_default="wrap"
+        tools:listitem="@layout/carditem" />
+
+    <LinearLayout
+        android:id="@+id/resultado_linear_no_resultados"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:visibility="invisible"
+        android:orientation="vertical">
 
         <TextView
             android:layout_width="match_parent"

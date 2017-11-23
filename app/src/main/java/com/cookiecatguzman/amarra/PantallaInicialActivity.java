@@ -12,7 +12,7 @@ import com.cookiecatguzman.amarra.fragments.InicioFragment;
 import com.cookiecatguzman.amarra.fragments.MapaFragment;
 import com.cookiecatguzman.amarra.fragments.PerfilFragment;
 import com.cookiecatguzman.amarra.fragments.UnidadesFragment;
-import com.cookiecatguzman.amarra.fragments.dummy.UnidadesContent;
+import com.cookiecatguzman.amarra.fragments.dummy.Incidencias;
 
 public class PantallaInicialActivity extends AppCompatActivity implements UnidadesFragment.OnListFragmentInteractionListener {
 
@@ -59,7 +59,7 @@ public class PantallaInicialActivity extends AppCompatActivity implements Unidad
     }
 
     @Override
-    public void onListFragmentInteraction(UnidadesContent.DummyItem item) {
+    public void onListFragmentInteraction(Incidencias.DummyItem item) {
 
     }
 }

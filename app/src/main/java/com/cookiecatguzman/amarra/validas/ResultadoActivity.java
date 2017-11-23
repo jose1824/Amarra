@@ -5,16 +5,23 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.cookiecatguzman.amarra.R;
+import com.cookiecatguzman.amarra.adapters.IncidenciasRecyclerViewAdapter;
+import com.cookiecatguzman.amarra.fragments.dummy.Incidencias;
 
 import java.text.DateFormat;
 import java.text.Format;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 import butterknife.BindView;
@@ -35,6 +42,8 @@ public class ResultadoActivity extends AppCompatActivity {
     @BindView(R.id.txt_destino) TextView txtDestino;
     @BindView(R.id.txt_hora_salida) TextView txtHoraSalida;
     @BindView(R.id.txt_hora_llegada) TextView txtHoraLlegada;
+    @BindView(R.id.list) RecyclerView recyclerView;
+    @BindView(R.id.toolbar) Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,13 +52,24 @@ public class ResultadoActivity extends AppCompatActivity {
 
         ButterKnife.bind(this);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_arrow_back);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle("Resultados del viaje");
 
         inicializarTextos();
+
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        Incidencias incidencias = new Incidencias(this);
+        ArrayList<Incidencias.DummyItem> datos = incidencias.getITEMS();
+        IncidenciasRecyclerViewAdapter adapter = new IncidenciasRecyclerViewAdapter(datos, this);
+        recyclerView.setAdapter(adapter);
+
+        if (datos.size() <= 0) {
+            recyclerView.setVisibility(View.GONE);
+            LinearLayout linear = (LinearLayout) findViewById(R.id.resultado_linear_no_resultados);
+            linear.setVisibility(View.VISIBLE);
+        }
 
     }
 
